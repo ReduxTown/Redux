@@ -6,224 +6,164 @@
 <title>Redux Hub</title>
 
 <style>
-:root {
-  --bg:#0b0b0b;
-  --panel:#141414;
-  --accent:#00bfff;
-  --text:#eaeaea;
-  --muted:#888;
-  --good:#3cff7a;
+:root{
+ --bg:#0b0b0b;
+ --panel:#141414;
+ --accent:#00bfff;
+ --text:#eaeaea;
+ --muted:#777;
+ --good:#3cff7a;
 }
-
-* { box-sizing:border-box; }
-
-body {
-  margin:0;
-  font-family:Segoe UI, sans-serif;
-  background:var(--bg);
-  color:var(--text);
-}
-
-/* Header */
-header {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:12px 20px;
-  background:#111;
-  border-bottom:1px solid #222;
-}
-header img { width:32px;height:32px; }
-
-nav button {
-  background:none;
-  border:none;
-  color:var(--text);
-  margin-left:15px;
-  cursor:pointer;
-}
-nav button.active { color:var(--accent); }
-
-/* Tabs */
-.tab { display:none; padding:25px; animation:fade .3s; }
-.tab.active { display:block; }
-@keyframes fade { from{opacity:0;transform:translateY(10px);} }
-
-/* Panels */
-.panel {
-  background:var(--panel);
-  padding:20px;
-  border-radius:8px;
-  max-width:650px;
-  margin:auto;
-}
-
-/* Inputs */
-input, textarea {
-  width:100%;
-  padding:10px;
-  border:none;
-  border-radius:6px;
-  margin:6px 0;
-  background:#1c1c1c;
-  color:var(--text);
-}
-
-button.main {
-  background:var(--accent);
-  border:none;
-  padding:10px 16px;
-  border-radius:6px;
-  font-weight:600;
-  cursor:pointer;
-}
-
-/* Chat */
-.chatBox {
-  height:260px;
-  overflow-y:auto;
-  background:#0f0f0f;
-  border-radius:6px;
-  padding:10px;
-  margin-bottom:10px;
-  font-size:14px;
-}
-.msg { margin-bottom:6px; }
-.name { color:var(--accent); }
-.verified { color:var(--good); margin-left:4px; }
-
-footer {
-  text-align:center;
-  font-size:13px;
-  color:var(--muted);
-  margin:30px 0;
-}
-footer img { width:22px; vertical-align:middle; margin-left:6px; }
+body{margin:0;font-family:Segoe UI;background:var(--bg);color:var(--text)}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:#111;border-bottom:1px solid #222}
+header img{width:32px}
+nav button{background:none;border:none;color:var(--text);margin-left:12px;cursor:pointer}
+nav button.active{color:var(--accent)}
+.tab{display:none;padding:22px}
+.tab.active{display:block}
+.panel{background:var(--panel);padding:20px;border-radius:8px;max-width:720px;margin:auto}
+input,textarea{width:100%;padding:10px;border:none;border-radius:6px;margin:6px 0;background:#1c1c1c;color:var(--text)}
+button.main{background:var(--accent);border:none;padding:10px 16px;border-radius:6px;font-weight:600;cursor:pointer}
+.chatBox{height:260px;overflow-y:auto;background:#0f0f0f;border-radius:6px;padding:10px}
+.msg{margin-bottom:6px;font-size:14px}
+.name{color:var(--accent)}
+.verified{color:var(--good)}
+.script{border-bottom:1px solid #222;padding:10px 0}
+footer{text-align:center;font-size:13px;color:var(--muted);margin:30px 0}
+footer img{width:22px;vertical-align:middle;margin-left:6px}
 </style>
 </head>
 
 <body>
 
 <header>
-  <div style="display:flex;align-items:center;gap:10px;">
-    <img src="https://raw.githubusercontent.com/SmilerVinix/Redux/509b0068eb14307fae4db7903c3824a2628d0224/Untitled380_20260206145216.png">
-    <strong>Redux Hub</strong>
-  </div>
-  <nav>
-    <button class="tabBtn active" data-tab="home">Home</button>
-    <button class="tabBtn" data-tab="gen">Generator</button>
-    <button class="tabBtn" data-tab="account">Account</button>
-    <button class="tabBtn" data-tab="chat">Chat</button>
-  </nav>
+ <div style="display:flex;align-items:center;gap:10px">
+  <img src="https://raw.githubusercontent.com/SmilerVinix/Redux/509b0068eb14307fae4db7903c3824a2628d0224/Untitled380_20260206145216.png">
+  <b>Redux Hub</b>
+ </div>
+ <nav>
+  <button class="tabBtn active" data-tab="home">Home</button>
+  <button class="tabBtn" data-tab="scripts">Scripts</button>
+  <button class="tabBtn" data-tab="chat">Chat</button>
+  <button class="tabBtn" data-tab="account">Account</button>
+ </nav>
 </header>
 
-<!-- HOME -->
 <div id="home" class="tab active">
-  <div class="panel">
-    <h2>Redux Hub</h2>
-    <p>Cheat‑GUI styled site with account verification and live chat.</p>
-  </div>
+ <div class="panel">
+  <h2>Redux Hub</h2>
+  <p>Script hub • Chat • GitHub‑verified accounts</p>
+ </div>
 </div>
 
-<!-- GENERATOR -->
-<div id="gen" class="tab">
-  <div class="panel">
-    <h3>Username Generator</h3>
-    <button class="main" onclick="generate()">Generate</button>
-    <h4 id="genOut"></h4>
-  </div>
+<div id="scripts" class="tab">
+ <div class="panel">
+  <h3>Script Search (ScriptBlox)</h3>
+  <input id="scriptQuery" placeholder="Search scripts">
+  <button class="main" onclick="searchScripts()">Search</button>
+  <div id="scriptResults"></div>
+ </div>
 </div>
 
-<!-- ACCOUNT -->
-<div id="account" class="tab">
-  <div class="panel">
-    <h3>Link GitHub Account</h3>
-    <input id="githubUser" placeholder="GitHub username">
-    <button class="main" onclick="linkGitHub()">Link & Verify</button>
-    <p id="accStatus"></p>
-  </div>
-</div>
-
-<!-- CHAT -->
 <div id="chat" class="tab">
-  <div class="panel">
-    <h3>Redux Chat Room</h3>
-    <div class="chatBox" id="chatBox"></div>
-    <input id="chatMsg" placeholder="Type a message">
-    <button class="main" onclick="sendMsg()">Send</button>
-  </div>
+ <div class="panel">
+  <h3>Chat Room</h3>
+  <div class="chatBox" id="chatBox"></div>
+  <input id="chatInput" placeholder="Message">
+  <button class="main" onclick="sendMessage()">Send</button>
+ </div>
+</div>
+
+<div id="account" class="tab">
+ <div class="panel">
+  <h3>Link GitHub</h3>
+  <input id="ghUser" placeholder="GitHub username">
+  <button class="main" onclick="verifyGitHub()">Verify</button>
+  <p id="status"></p>
+ </div>
 </div>
 
 <footer>
-  Created by ReduxTown
-  <img src="https://raw.githubusercontent.com/ReduxTown/Redux/509b0068eb14307fae4db7903c3824a2628d0224/IMG_5168.png">
+ Created by ReduxTown
+ <img src="https://raw.githubusercontent.com/ReduxTown/Redux/509b0068eb14307fae4db7903c3824a2628d0224/IMG_5168.png">
 </footer>
 
 <script>
 /* Tabs */
 document.querySelectorAll('.tabBtn').forEach(b=>{
-  b.onclick=()=>{
-    document.querySelectorAll('.tabBtn').forEach(x=>x.classList.remove('active'));
-    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-    b.classList.add('active');
-    document.getElementById(b.dataset.tab).classList.add('active');
-  };
+ b.onclick=()=>{
+  document.querySelectorAll('.tabBtn').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  b.classList.add('active');
+  document.getElementById(b.dataset.tab).classList.add('active');
+ };
 });
 
-/* Generator (ro.proxy placeholder) */
-function generate(){
-  document.getElementById('genOut').textContent =
-    "Name_" + Math.random().toString(36).slice(2,8);
+/* Identity */
+let user = JSON.parse(localStorage.getItem("reduxUser"));
+if(!user){
+ user={name:"Guest_"+Math.floor(Math.random()*9000),verified:false};
+ localStorage.setItem("reduxUser",JSON.stringify(user));
 }
 
-/* GitHub Verification */
-async function linkGitHub(){
-  const u = githubUser.value.trim();
-  accStatus.textContent = "Checking GitHub bio...";
-  try{
-    const r = await fetch(`https://api.github.com/users/${u}`);
-    const d = await r.json();
-
-    const verified = d.bio && d.bio.includes("*this user Proved this account was theirs");
-    localStorage.setItem("reduxUser", JSON.stringify({
-      name:d.login,
-      verified
-    }));
-
-    accStatus.innerHTML = verified
-      ? `Linked as <b>${d.login}</b> <span style="color:var(--good)">✔ VERIFIED</span>`
-      : `Linked as <b>${d.login}</b> (not verified)`;
-  }catch{
-    accStatus.textContent="GitHub user not found.";
-  }
+/* GitHub Verify */
+async function verifyGitHub(){
+ const u=ghUser.value.trim();
+ status.textContent="Checking...";
+ try{
+  const r=await fetch(`https://api.github.com/users/${u}`);
+  const d=await r.json();
+  let verified=false;
+  if(d.login==="ReduxTown") verified=true;
+  if(d.bio && d.bio.includes("*this user Proved this account was theirs")) verified=true;
+  user={name:d.login,verified};
+  localStorage.setItem("reduxUser",JSON.stringify(user));
+  status.innerHTML=verified?
+   `✔ Verified as ${d.login}`:
+   `Linked as ${d.login} (not verified)`;
+ }catch{status.textContent="GitHub user not found";}
 }
 
-/* Chat Room */
-const channel = new BroadcastChannel("redux_chat");
-const chatBox = document.getElementById("chatBox");
+/* Chat (Saved) */
+const chatBox=document.getElementById("chatBox");
+let messages=JSON.parse(localStorage.getItem("reduxChat")||"[]");
 
-channel.onmessage = e=>{
-  const m = e.data;
-  const div = document.createElement("div");
+function renderChat(){
+ chatBox.innerHTML="";
+ messages.forEach(m=>{
+  const div=document.createElement("div");
   div.className="msg";
-  div.innerHTML = `<span class="name">${m.name}</span>
-    ${m.verified ? '<span class="verified">✔</span>' : ''}
-    : ${m.text}`;
+  div.innerHTML=`<span class="name">${m.name}</span>
+  ${m.verified?'<span class="verified">✔</span>':''}: ${m.text}`;
   chatBox.appendChild(div);
-  chatBox.scrollTop = chatBox.scrollHeight;
-};
+ });
+ chatBox.scrollTop=chatBox.scrollHeight;
+}
+renderChat();
 
-function sendMsg(){
-  const msg = chatMsg.value.trim();
-  if(!msg) return;
+function sendMessage(){
+ const text=chatInput.value.trim();
+ if(!text) return;
+ messages.push({name:user.name,verified:user.verified,text});
+ localStorage.setItem("reduxChat",JSON.stringify(messages));
+ chatInput.value="";
+ renderChat();
+}
 
-  const acc = JSON.parse(localStorage.getItem("reduxUser")||'{}');
-  channel.postMessage({
-    name: acc.name || "Guest",
-    verified: acc.verified,
-    text: msg
-  });
-  chatMsg.value="";
+/* ScriptBlox */
+async function searchScripts(){
+ const q=scriptQuery.value.trim();
+ scriptResults.innerHTML="Searching...";
+ const r=await fetch(`https://scriptblox.com/api/script/search?q=${encodeURIComponent(q)}`);
+ const d=await r.json();
+ scriptResults.innerHTML="";
+ d.result.scripts.slice(0,10).forEach(s=>{
+  const div=document.createElement("div");
+  div.className="script";
+  div.innerHTML=`<b>${s.title}</b><br>
+  Views: ${s.views} ${s.verified?'✔':''}`;
+  scriptResults.appendChild(div);
+ });
 }
 </script>
 
