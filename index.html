@@ -1,226 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redux Hub</title>
-    <style>
-        /* ----- General Styling ----- */
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #0f0f0f;
-            color: #f5f5f5;
-            overflow-x: hidden;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redux Hub</title>
 
-        a {
-            color: #00bfff;
-            text-decoration: none;
-        }
+<style>
+:root {
+  --bg:#0b0b0b;
+  --panel:#141414;
+  --accent:#00bfff;
+  --text:#eaeaea;
+  --muted:#888;
+}
 
-        /* ----- Header ----- */
-        header {
-            display: flex;
-            justify-content: center;
-            background: #1a1a1a;
-            padding: 15px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-        }
+* { box-sizing:border-box; }
 
-        nav {
-            display: flex;
-            gap: 30px;
-        }
+body {
+  margin:0;
+  font-family:Segoe UI, sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
 
-        nav button {
-            background: none;
-            border: none;
-            color: #f5f5f5;
-            font-size: 1.1em;
-            cursor: pointer;
-            position: relative;
-            padding: 5px 10px;
-            transition: 0.3s;
-        }
+/* ===== Header ===== */
+header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px 20px;
+  background:#111;
+  border-bottom:1px solid #222;
+}
 
-        nav button:hover {
-            color: #00bfff;
-        }
+header .left {
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
 
-        nav button::after {
-            content: '';
-            display: block;
-            height: 3px;
-            width: 0;
-            background: #00bfff;
-            transition: 0.3s;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-        }
+header img {
+  width:32px;
+  height:32px;
+}
 
-        nav button.active::after {
-            width: 100%;
-        }
+nav button {
+  background:none;
+  border:none;
+  color:var(--text);
+  margin-left:15px;
+  cursor:pointer;
+  font-size:15px;
+}
+nav button.active { color:var(--accent); }
 
-        /* ----- Tabs Content ----- */
-        .tab {
-            display: none;
-            padding: 50px 20px;
-            text-align: center;
-            animation: fadeIn 0.5s ease-in-out;
-        }
+/* ===== Tabs ===== */
+.tab {
+  display:none;
+  padding:25px;
+  animation:fade .35s ease;
+}
+.tab.active { display:block; }
 
-        .tab.active {
-            display: block;
-        }
+@keyframes fade {
+  from {opacity:0; transform:translateY(10px);}
+  to {opacity:1;}
+}
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+/* ===== Panels ===== */
+.panel {
+  background:var(--panel);
+  padding:20px;
+  border-radius:8px;
+  max-width:600px;
+  margin:auto;
+}
 
-        /* ----- Search Tab ----- */
-        .search-container {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
+/* ===== Cheat GUI Controls ===== */
+.toggle {
+  display:flex;
+  justify-content:space-between;
+  margin:12px 0;
+}
 
-        input[type="text"] {
-            padding: 10px 15px;
-            width: 300px;
-            border-radius: 5px;
-            border: none;
-            outline: none;
-            font-size: 1em;
-        }
+.toggle input { transform:scale(1.3); }
 
-        button.search-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            background: #00bfff;
-            color: #0f0f0f;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
-        }
+.slider {
+  width:100%;
+}
 
-        button.search-btn:hover {
-            background: #0094cc;
-        }
+/* ===== Buttons ===== */
+button.main {
+  background:var(--accent);
+  color:#000;
+  border:none;
+  padding:10px 16px;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:600;
+}
 
-        .results {
-            margin-top: 20px;
-            max-width: 600px;
-            text-align: left;
-            border-top: 1px solid #444;
-            padding-top: 15px;
-        }
+input {
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:6px;
+  margin:6px 0;
+}
 
-        .result-item {
-            padding: 10px;
-            border-bottom: 1px solid #333;
-            transition: 0.2s;
-        }
+/* ===== Footer ===== */
+footer {
+  text-align:center;
+  font-size:13px;
+  color:var(--muted);
+  margin:30px 0;
+}
 
-        .result-item:hover {
-            background: #1a1a1a;
-        }
-
-        /* ----- About Tab ----- */
-        .about {
-            max-width: 600px;
-            margin: auto;
-            line-height: 1.6;
-        }
-    </style>
+footer img {
+  width:24px;
+  vertical-align:middle;
+  margin-left:6px;
+}
+</style>
 </head>
+
 <body>
 
-    <header>
-        <nav>
-            <button class="tab-btn active" data-tab="home">Home</button>
-            <button class="tab-btn" data-tab="search">Search</button>
-            <button class="tab-btn" data-tab="about">About</button>
-        </nav>
-    </header>
+<header>
+  <div class="left">
+    <!-- GUI ICON -->
+    <img src="https://raw.githubusercontent.com/SmilerVinix/Redux/509b0068eb14307fae4db7903c3824a2628d0224/Untitled380_20260206145216.png">
+    <strong>Redux Hub</strong>
+  </div>
 
-    <!-- Tabs -->
-    <div id="home" class="tab active">
-        <h1>Welcome to Redux Hub</h1>
-        <p>Your Roblox script & exploit hub.</p>
-        <p>Navigate the tabs to search users or learn more.</p>
+  <nav>
+    <button class="tabBtn active" data-tab="home">Home</button>
+    <button class="tabBtn" data-tab="gen">Generator</button>
+    <button class="tabBtn" data-tab="account">Account</button>
+  </nav>
+</header>
+
+<!-- ===== HOME ===== -->
+<div id="home" class="tab active">
+  <div class="panel">
+    <h2>Redux Hub</h2>
+    <p>Exploit-style interface with username generation, toggles, and GitHub-linked accounts.</p>
+  </div>
+</div>
+
+<!-- ===== GENERATOR ===== -->
+<div id="gen" class="tab">
+  <div class="panel">
+    <h3>Username Generator</h3>
+
+    <div class="toggle">
+      <span>Include Numbers</span>
+      <input type="checkbox" id="nums" checked>
     </div>
 
-    <div id="search" class="tab">
-        <h2>Search Roblox Users</h2>
-        <div class="search-container">
-            <input type="text" id="username" placeholder="Enter username">
-            <button class="search-btn" onclick="searchUser()">Search</button>
-        </div>
-        <div class="results" id="results"></div>
+    <div class="toggle">
+      <span>Include Underscores</span>
+      <input type="checkbox" id="unders">
     </div>
 
-    <div id="about" class="tab">
-        <h2>About Redux Hub</h2>
-        <div class="about">
-            <p>Redux Hub is a custom Roblox script hub with a focus on cool UI and user-friendly experience.</p>
-            <p>Use the Search tab to find Roblox user info using <strong>ro.proxy</strong> API.</p>
-        </div>
-    </div>
+    <label>Length</label>
+    <input type="range" min="5" max="20" value="10" class="slider" id="length">
 
-    <script>
-        // ----- Tab Switcher -----
-        const tabs = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab');
+    <p id="lenVal">Length: 10</p>
 
-        tabs.forEach(btn => {
-            btn.addEventListener('click', () => {
-                tabs.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+    <button class="main" onclick="generateName()">Generate</button>
+    <h4 id="output"></h4>
+  </div>
+</div>
 
-                const target = btn.dataset.tab;
-                tabContents.forEach(tab => {
-                    tab.classList.remove('active');
-                    if (tab.id === target) tab.classList.add('active');
-                });
-            });
-        });
+<!-- ===== ACCOUNT ===== -->
+<div id="account" class="tab">
+  <div class="panel">
+    <h3>Create / Link Account</h3>
 
-        // ----- Search Function -----
-        async function searchUser() {
-            const username = document.getElementById('username').value.trim();
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = 'Searching...';
+    <input id="user" placeholder="Username">
+    <input id="pass" type="password" placeholder="Password">
 
-            if (!username) {
-                resultsDiv.innerHTML = 'Please enter a username.';
-                return;
-            }
+    <button class="main" onclick="createAccount()">Create Account</button>
 
-            try {
-                // Example: fetch data from ro.proxy API
-                const response = await fetch(`https://ro.proxy/api/users/${username}`);
-                if (!response.ok) throw new Error('User not found');
+    <hr style="margin:20px 0;border-color:#222">
 
-                const data = await response.json();
-                // Display some info
-                resultsDiv.innerHTML = `
-                    <div class="result-item"><strong>ID:</strong> ${data.id}</div>
-                    <div class="result-item"><strong>Username:</strong> ${data.username}</div>
-                    <div class="result-item"><strong>Display Name:</strong> ${data.displayName}</div>
-                `;
-            } catch (err) {
-                resultsDiv.innerHTML = `Error: ${err.message}`;
-            }
-        }
-    </script>
+    <input id="github" placeholder="GitHub username">
+    <button class="main" onclick="linkGitHub()">Link GitHub</button>
+
+    <p id="accStatus"></p>
+  </div>
+</div>
+
+<footer>
+  Created by ReduxTown
+  <img src="https://raw.githubusercontent.com/ReduxTown/Redux/509b0068eb14307fae4db7903c3824a2628d0224/IMG_5168.png">
+</footer>
+
+<script>
+/* ===== Tabs ===== */
+document.querySelectorAll('.tabBtn').forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll('.tabBtn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  }
+});
+
+/* ===== Slider ===== */
+const len = document.getElementById('length');
+const lenVal = document.getElementById('lenVal');
+len.oninput = () => lenVal.textContent = `Length: ${len.value}`;
+
+/* ===== Username Generator (ro.proxy) ===== */
+async function generateName(){
+  const nums = document.getElementById('nums').checked;
+  const unders = document.getElementById('unders').checked;
+  const length = len.value;
+
+  document.getElementById('output').textContent = "Generating...";
+
+  try{
+    const res = await fetch(
+      `https://ro.proxy/api/username/generate?length=${length}&numbers=${nums}&underscores=${unders}`
+    );
+    const data = await res.json();
+    document.getElementById('output').textContent = data.username || "Generated!";
+  }catch{
+    document.getElementById('output').textContent = "API error";
+  }
+}
+
+/* ===== Accounts (LocalStorage) ===== */
+function createAccount(){
+  const u = user.value;
+  const p = pass.value;
+  if(!u||!p) return;
+  localStorage.setItem("redux_user", JSON.stringify({u,p}));
+  accStatus.textContent = "Account created locally.";
+}
+
+async function linkGitHub(){
+  const gh = github.value;
+  accStatus.textContent = "Checking GitHub...";
+  try{
+    const r = await fetch(`https://api.github.com/users/${gh}`);
+    if(!r.ok) throw 0;
+    const data = await r.json();
+    localStorage.setItem("redux_github", data.login);
+    accStatus.textContent = `Linked GitHub: ${data.login}`;
+  }catch{
+    accStatus.textContent = "GitHub user not found.";
+  }
+}
+</script>
 
 </body>
 </html>
