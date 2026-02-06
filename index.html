@@ -1,170 +1,138 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Redux Hub</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <style>
-:root{
- --bg:#0b0b0b;
- --panel:#141414;
- --accent:#00bfff;
- --text:#eaeaea;
- --muted:#777;
- --good:#3cff7a;
+body{background:#000;margin:0;font-family:Segoe UI;color:#eee}
+#gui{
+ position:fixed;top:80px;left:80px;
+ width:360px;background:#111;border:1px solid #222;
+ border-radius:8px;z-index:9999
 }
-body{margin:0;font-family:Segoe UI;background:var(--bg);color:var(--text)}
-header{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:#111;border-bottom:1px solid #222}
-header img{width:32px}
-nav button{background:none;border:none;color:var(--text);margin-left:12px;cursor:pointer}
-nav button.active{color:var(--accent)}
-.tab{display:none;padding:22px}
-.tab.active{display:block}
-.panel{background:var(--panel);padding:20px;border-radius:8px;max-width:720px;margin:auto}
-input,textarea{width:100%;padding:10px;border:none;border-radius:6px;margin:6px 0;background:#1c1c1c;color:var(--text)}
-button.main{background:var(--accent);border:none;padding:10px 16px;border-radius:6px;font-weight:600;cursor:pointer}
-.chatBox{height:260px;overflow-y:auto;background:#0f0f0f;border-radius:6px;padding:10px}
-.msg{margin-bottom:6px;font-size:14px}
-.name{color:var(--accent)}
-.verified{color:var(--good)}
-.script{border-bottom:1px solid #222;padding:10px 0}
-footer{text-align:center;font-size:13px;color:var(--muted);margin:30px 0}
-footer img{width:22px;vertical-align:middle;margin-left:6px}
+#header{
+ padding:10px;background:#0b0b0b;
+ cursor:move;font-weight:700;color:#00bfff
+}
+#content{padding:12px}
+input,button{width:100%;margin:5px 0;padding:8px;border:none;border-radius:6px}
+button{background:#00bfff;color:#000;font-weight:700;cursor:pointer}
+.toggle{display:flex;justify-content:space-between;margin:6px 0}
+.chat{height:160px;overflow-y:auto;background:#050505;padding:6px;border-radius:6px}
+.msg{font-size:13px;margin-bottom:4px}
+.owner{color:#ff4747}
+.verified{color:#3cff7a}
 </style>
 </head>
 
 <body>
 
-<header>
- <div style="display:flex;align-items:center;gap:10px">
-  <img src="https://raw.githubusercontent.com/SmilerVinix/Redux/509b0068eb14307fae4db7903c3824a2628d0224/Untitled380_20260206145216.png">
-  <b>Redux Hub</b>
- </div>
- <nav>
-  <button class="tabBtn active" data-tab="home">Home</button>
-  <button class="tabBtn" data-tab="scripts">Scripts</button>
-  <button class="tabBtn" data-tab="chat">Chat</button>
-  <button class="tabBtn" data-tab="account">Account</button>
- </nav>
-</header>
+<div id="gui">
+ <div id="header">Redux Hub</div>
+ <div id="content">
 
-<div id="home" class="tab active">
- <div class="panel">
-  <h2>Redux Hub</h2>
-  <p>Script hub • Chat • GitHub‑verified accounts</p>
- </div>
-</div>
+  <input id="keyInput" placeholder="Enter key">
+  <button onclick="unlock()">Unlock</button>
 
-<div id="scripts" class="tab">
- <div class="panel">
-  <h3>Script Search (ScriptBlox)</h3>
-  <input id="scriptQuery" placeholder="Search scripts">
-  <button class="main" onclick="searchScripts()">Search</button>
-  <div id="scriptResults"></div>
- </div>
-</div>
+  <input id="ownerCode" placeholder="Owner code">
+  <button onclick="setOwner()">Claim Owner</button>
 
-<div id="chat" class="tab">
- <div class="panel">
-  <h3>Chat Room</h3>
-  <div class="chatBox" id="chatBox"></div>
+  <div class="toggle"><span>ESP</span><input type="checkbox"></div>
+  <div class="toggle"><span>Aimbot</span><input type="checkbox"></div>
+  <div class="toggle"><span>Silent Aim</span><input type="checkbox"></div>
+
+  <div class="chat" id="chat"></div>
   <input id="chatInput" placeholder="Message">
-  <button class="main" onclick="sendMessage()">Send</button>
+  <button onclick="send()">Send</button>
+
  </div>
 </div>
-
-<div id="account" class="tab">
- <div class="panel">
-  <h3>Link GitHub</h3>
-  <input id="ghUser" placeholder="GitHub username">
-  <button class="main" onclick="verifyGitHub()">Verify</button>
-  <p id="status"></p>
- </div>
-</div>
-
-<footer>
- Created by ReduxTown
- <img src="https://raw.githubusercontent.com/ReduxTown/Redux/509b0068eb14307fae4db7903c3824a2628d0224/IMG_5168.png">
-</footer>
 
 <script>
-/* Tabs */
-document.querySelectorAll('.tabBtn').forEach(b=>{
- b.onclick=()=>{
-  document.querySelectorAll('.tabBtn').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  b.classList.add('active');
-  document.getElementById(b.dataset.tab).classList.add('active');
- };
+/* 🔥 FIREBASE CONFIG */
+firebase.initializeApp({
+ apiKey: "AIzaSyBDe4NoreGgY9XLXriwqy7w8pE0W-x0J2s",
+ authDomain: "redux-hub-dc50d.firebaseapp.com",
+ databaseURL: "https://redux-hub-dc50d-default-rtdb.firebaseio.com",
+ projectId: "redux-hub-dc50d",
+});
+const db = firebase.database();
+
+/* HWID (WEB SAFE) */
+const hwid = btoa(navigator.userAgent + screen.width + screen.height);
+
+/* USER STATE */
+let user = JSON.parse(localStorage.getItem("reduxUser")) || {
+ name: "Guest_" + Math.floor(Math.random()*9000),
+ verified:false,
+ owner:false
+};
+localStorage.setItem("reduxUser",JSON.stringify(user));
+
+/* KEY SYSTEM */
+async function unlock(){
+ const key = keyInput.value;
+ const snap = await db.ref("keys/"+key).get();
+ if(!snap.exists()) return alert("Invalid key");
+ if(snap.val().hwid && snap.val().hwid !== hwid)
+  return alert("Key already used");
+
+ await db.ref("keys/"+key).set({hwid});
+ alert("Unlocked");
+}
+
+/* OWNER CODE */
+async function setOwner(){
+ const code = ownerCode.value;
+ const snap = await db.ref("ownerCode").get();
+ if(snap.val() === code){
+  user.owner = true;
+  localStorage.setItem("reduxUser",JSON.stringify(user));
+  alert("OWNER granted");
+ } else alert("Invalid code");
+}
+
+/* CHAT */
+const chatBox=document.getElementById("chat");
+db.ref("chat").limitToLast(50).on("child_added",s=>{
+ const m=s.val();
+ const div=document.createElement("div");
+ div.className="msg";
+ div.innerHTML=
+  `<b class="${m.owner?'owner':m.verified?'verified':''}">
+   ${m.name}</b>: ${m.text}`;
+ chatBox.appendChild(div);
+ chatBox.scrollTop=9999;
 });
 
-/* Identity */
-let user = JSON.parse(localStorage.getItem("reduxUser"));
-if(!user){
- user={name:"Guest_"+Math.floor(Math.random()*9000),verified:false};
- localStorage.setItem("reduxUser",JSON.stringify(user));
-}
-
-/* GitHub Verify */
-async function verifyGitHub(){
- const u=ghUser.value.trim();
- status.textContent="Checking...";
- try{
-  const r=await fetch(`https://api.github.com/users/${u}`);
-  const d=await r.json();
-  let verified=false;
-  if(d.login==="ReduxTown") verified=true;
-  if(d.bio && d.bio.includes("*this user Proved this account was theirs")) verified=true;
-  user={name:d.login,verified};
-  localStorage.setItem("reduxUser",JSON.stringify(user));
-  status.innerHTML=verified?
-   `✔ Verified as ${d.login}`:
-   `Linked as ${d.login} (not verified)`;
- }catch{status.textContent="GitHub user not found";}
-}
-
-/* Chat (Saved) */
-const chatBox=document.getElementById("chatBox");
-let messages=JSON.parse(localStorage.getItem("reduxChat")||"[]");
-
-function renderChat(){
- chatBox.innerHTML="";
- messages.forEach(m=>{
-  const div=document.createElement("div");
-  div.className="msg";
-  div.innerHTML=`<span class="name">${m.name}</span>
-  ${m.verified?'<span class="verified">✔</span>':''}: ${m.text}`;
-  chatBox.appendChild(div);
+function send(){
+ const text=chatInput.value;
+ if(!text)return;
+ db.ref("chat").push({
+  name:user.name,
+  verified:user.verified,
+  owner:user.owner,
+  text
  });
- chatBox.scrollTop=chatBox.scrollHeight;
-}
-renderChat();
-
-function sendMessage(){
- const text=chatInput.value.trim();
- if(!text) return;
- messages.push({name:user.name,verified:user.verified,text});
- localStorage.setItem("reduxChat",JSON.stringify(messages));
  chatInput.value="";
- renderChat();
 }
 
-/* ScriptBlox */
-async function searchScripts(){
- const q=scriptQuery.value.trim();
- scriptResults.innerHTML="Searching...";
- const r=await fetch(`https://scriptblox.com/api/script/search?q=${encodeURIComponent(q)}`);
- const d=await r.json();
- scriptResults.innerHTML="";
- d.result.scripts.slice(0,10).forEach(s=>{
-  const div=document.createElement("div");
-  div.className="script";
-  div.innerHTML=`<b>${s.title}</b><br>
-  Views: ${s.views} ${s.verified?'✔':''}`;
-  scriptResults.appendChild(div);
- });
-}
+/* DRAG */
+let g=document.getElementById("gui"),h=document.getElementById("header");
+h.onmousedown=e=>{
+ let x=e.clientX,y=e.clientY;
+ document.onmousemove=m=>{
+  g.style.left=g.offsetLeft+(m.clientX-x)+"px";
+  g.style.top=g.offsetTop+(m.clientY-y)+"px";
+  x=m.clientX;y=m.clientY;
+ };
+ document.onmouseup=()=>document.onmousemove=null;
+};
 </script>
 
 </body>
